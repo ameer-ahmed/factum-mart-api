@@ -3,7 +3,7 @@
 namespace FactumMart\API\Models;
 
 use FactumMart\API\LIB\DB;
-use FactumMart\API\LIB\Sanitze;
+use FactumMart\API\LIB\Sanitize;
 use PDO;
 
 class AbstractModel {
@@ -13,19 +13,34 @@ class AbstractModel {
     const DATA_TYPE_BOOL = PDO::PARAM_BOOL;
     const DATA_TYPE_DECIMAL = 4;
 
-    private function prepareValues($stmt) {
-        foreach(static::$tableSchema as $columnName => $type) {
-            if($type === self::DATA_TYPE_STR) {
-                $stmt->bindValue(":${columnName}", Sanitze::string($this->$columnName));
+    private static $_instance;
 
-            } elseif($type === self::DATA_TYPE_INT) {
-                $stmt->bindValue(":${columnName}", Sanitze::int($this->$columnName));
+    public static function getInstance() {
+        if(self::$_instance === null) {
+            self::$_instance = new static();
+        }
+        return self::$_instance;
+    }
 
-            } elseif($type === self::DATA_TYPE_BOOL) {
-                $stmt->bindValue(":${columnName}", Sanitze::bool($this->$columnName));
+    private function prepareValues($stmt, $values = []) {
+        if(\count($values) > 0) {
+            foreach($values as $columnName => $value) {
+                $stmt->bindValue(":${columnName}", Sanitize::string($value));
             }
-            elseif($type === 4) {
-                $stmt->bindValue(":${columnName}", Sanitze::float($this->$columnName));
+        } else {
+            foreach(static::$tableSchema as $columnName => $type) {
+                if($type === self::DATA_TYPE_STR) {
+                    $stmt->bindValue(":${columnName}", Sanitize::string($this->$columnName));
+    
+                } elseif($type === self::DATA_TYPE_INT) {
+                    $stmt->bindValue(":${columnName}", Sanitize::int($this->$columnName));
+    
+                } elseif($type === self::DATA_TYPE_BOOL) {
+                    $stmt->bindValue(":${columnName}", Sanitize::bool($this->$columnName));
+                }
+                elseif($type === 4) {
+                    $stmt->bindValue(":${columnName}", Sanitize::float($this->$columnName));
+                }
             }
         }
     }
@@ -40,11 +55,13 @@ class AbstractModel {
 
     public static function getByPK($pk) {
         $sql = 'SELECT * FROM ' . static::$tableName . ' WHERE ' . static::$primaryKey . ' = "' . $pk . '"';
+        // TODO: To be continued.
     }
 
-    public static function getByCustom($where) {
+    public function getByCustom($where, $values) {
         $sql = 'SELECT * FROM ' . static::$tableName . ' WHERE ' . $where;
         $stmt = DB::getInstance()->prepare($sql);
+        $this->prepareValues($stmt, $values);
         if($stmt->execute()) {
             return $stmt->fetchAll(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, \get_called_class(), \array_keys(static::$tableSchema));
         } else {
