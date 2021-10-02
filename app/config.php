@@ -13,3 +13,8 @@ define('NS_CONTROLLERS', 'FactumMart\API\Controllers\\');
 define('NOT_FOUND_CONTROLLER', 'FactumMart\API\Controllers\NotFoundController');
 
 define('NOT_FOUND_ACTION', 'notFoundAction');
+
+define('DB_HOSTNAME', 'localhost');
+define('DB_NAME', 'factum_mart');
+define('DB_USERNAME', 'root');
+define('DB_PASSWORD', '');
