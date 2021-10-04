@@ -13,7 +13,7 @@ class AppSessionHandler extends SessionHandler {
     private $_sessionDomain = 'api.factum.mart';
     private $_sessionSSL = false;
     private $_sessionHTTPOnly = true;
-    private $_sessionTTL = 5;
+    private $_sessionTTL = 0.01;
 
     private $_sessionUserId;
 
@@ -80,37 +80,20 @@ class AppSessionHandler extends SessionHandler {
             return '';
         } else {
             return $this->decrypt($encryptedData);
-            // return $this->decrypt($encryptedData);
         }
     }
 
     public function write($id, $data) {
         return parent::write($id, $this->encrypt($data));
-        // return parent::write($id, $this->encrypt($data));
     }
 
     public function start() {
         if('' === \session_id()) {
             if(\session_start()) {
-                if($this->isValidFingerPrint()) {
-                    $this->setSessionStartTime();
+                $this->setSessionStartTime();
+                $this->generateFingerPrint($this->_sessionUserId);
                 $this->checkSessionValidity();
-                } else {
-                    session_unset();
-        setcookie(
-            $this->sessionName,
-            '',
-            time() - 1000,
-            $this->sessionPath,
-            $this->sessionDomain,
-            $this->sessionSSL,
-            $this->sessionHTTPOnly,
-        );
-        session_destroy();
-                }
-
                 return bin2hex(random_bytes(32));
-                
             }
         }
     }
@@ -155,5 +138,18 @@ class AppSessionHandler extends SessionHandler {
         return \false;
     }
 
+    public function kill() {
+        session_unset();
+        setcookie(
+            $this->sessionName,
+            '',
+            time() - 1000,
+            $this->sessionPath,
+            $this->sessionDomain,
+            $this->sessionSSL,
+            $this->sessionHTTPOnly,
+        );
+        session_destroy();
+    }
 
 }
