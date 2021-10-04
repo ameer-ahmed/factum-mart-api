@@ -6,16 +6,17 @@ class API {
 
     private static $_instance;
 
-    public function __construct($status, $actionName, $responseData = []) {
+    public function __construct($status, $message, $responseData = []) {
         echo \json_encode([
-            "status" => "${status}",
-            $actionName => $responseData,
+            "status" => $status,
+            "message" => $message,
+            "data" => $responseData,
         ]);
     }
 
-    public static function response($status, $actionName, $responseData) {
+    public static function response($status, $message, $responseData = null) {
         if(self::$_instance === null) {
-            self::$_instance = new self($status, $actionName, $responseData);
+            self::$_instance = new self($status, $message, $responseData);
         }
     }
 }

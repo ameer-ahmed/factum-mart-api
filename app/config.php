@@ -5,6 +5,7 @@ if(!defined('DS')) {
 }
 define('APP_PATH', realpath(dirname(__FILE__)));
 define('VIEW_PATH', APP_PATH . DS . 'views');
+define('SESSIONS_SAVE_PATH', APP_PATH . DS . 'sessions');
 
 
 define('NS', 'FactumMart\API');
