@@ -15,9 +15,9 @@ class AbstractModel {
 
     private static $_instance;
 
-    public static function getInstance() {
+    public static function getInstance($values = []) {
         if(self::$_instance === null) {
-            self::$_instance = new static();
+            self::$_instance = new static(...$values);
         }
         return self::$_instance;
     }
@@ -30,16 +30,13 @@ class AbstractModel {
         } else {
             foreach(static::$tableSchema as $columnName => $type) {
                 if($type === self::DATA_TYPE_STR) {
-                    $stmt->bindValue(":${columnName}", Sanitize::string($this->$columnName));
-    
+                    $stmt->bindValue(":${columnName}", Sanitize::string(static::${$columnName}));
                 } elseif($type === self::DATA_TYPE_INT) {
-                    $stmt->bindValue(":${columnName}", Sanitize::int($this->$columnName));
-    
+                    $stmt->bindValue(":${columnName}", Sanitize::int(static::${$columnName}));
                 } elseif($type === self::DATA_TYPE_BOOL) {
-                    $stmt->bindValue(":${columnName}", Sanitize::bool($this->$columnName));
-                }
-                elseif($type === 4) {
-                    $stmt->bindValue(":${columnName}", Sanitize::float($this->$columnName));
+                    $stmt->bindValue(":${columnName}", Sanitize::bool(static::${$columnName}));
+                } elseif($type === 4) {
+                    $stmt->bindValue(":${columnName}", Sanitize::float(static::${$columnName}));
                 }
             }
         }
@@ -51,6 +48,43 @@ class AbstractModel {
             $namedParams .= $columnName . ' = :' . $columnName .', ';
         }
         return \trim($namedParams, ', ');
+    }
+
+    private function detectDuplicate($column, $value) {
+        $sql = 'SELECT COUNT(*) FROM `' . static::$tableName . '` WHERE ' . $column . ' = :' . $column;
+        $stmt = DB::getInstance()->prepare($sql);
+        $this->prepareValues($stmt, ...[$value]);
+        $stmt->execute();
+        return $stmt->fetchColumn();
+    }
+
+    public static function catchRequiredFields() {
+        $missedFields = [];
+        foreach(static::$requiredFields as $field) {
+            if(empty($_POST[$field])) {
+                \array_push($missedFields, $field);
+            }
+        }
+        return $missedFields;
+    }
+
+    public function create() {
+        if(count(static::$uniqueColumns) > 0) {
+            $duplicatedColumns = [];
+            foreach(static::$uniqueColumns as $column) {
+                if($this->detectDuplicate($column, [$column => static::${$column}]) > 0) {
+                    \array_push($duplicatedColumns, $column);
+                }
+            }
+            if(count($duplicatedColumns) > 0) {
+                return $duplicatedColumns;
+            } else {
+                $sql = 'INSERT INTO `' . static::$tableName . '` SET ' . self::buildNamedSQLParameters();
+                $stmt = DB::getInstance()->prepare($sql);
+                $this->prepareValues($stmt);
+                return $stmt->execute();
+            }
+        }
     }
 
     public static function getByPK($pk) {
@@ -68,5 +102,7 @@ class AbstractModel {
             return \false;
         }
     }
+
+    
 
 }
