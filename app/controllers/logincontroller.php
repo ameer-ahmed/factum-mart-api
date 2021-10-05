@@ -12,13 +12,14 @@ class LoginController extends AbstractController {
         $this->activateHeaders();
         if(isset($_POST['username']) && isset($_POST['password'])) {
             @$login = UsersModel::getInstance()->getByCustom('(username = :username  OR email = :email)', ['username' => $_POST['username'], 'email' => $_POST['email']]);
+            @$login = (array)$login[0];
             if(count($login) > 0) {
-                if(\password_verify($_POST['password'], $login[0]->password)) {
-                    $session = new AppSessionHandler($login[0]->id);
+                if(\password_verify($_POST['password'], $login['password'])) {
+                    $session = new AppSessionHandler($login['id']);
                     API::response(true, 'Logged in successfully.', [
-                        'id' => $login[0]->id,
-                        'name' => $login[0]->name,
-                        'email' => $login[0]->email,
+                        'id' => $login['id'],
+                        'name' => $login['name'],
+                        'email' => $login['email'],
                         'token' => $session->start(),
                     ]);
                 } else {

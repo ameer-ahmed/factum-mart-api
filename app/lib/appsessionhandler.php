@@ -13,7 +13,7 @@ class AppSessionHandler extends SessionHandler {
     private $_sessionDomain = 'api.factum.mart';
     private $_sessionSSL = false;
     private $_sessionHTTPOnly = true;
-    private $_sessionTTL = 0.01;
+    private $_sessionTTL = 5;
 
     private $_sessionUserId;
 
