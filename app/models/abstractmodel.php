@@ -13,14 +13,16 @@ class AbstractModel {
     const DATA_TYPE_BOOL = PDO::PARAM_BOOL;
     const DATA_TYPE_DECIMAL = 4;
 
-    private static $_instance;
+    
 
-    public static function getInstance($values = []) {
-        if(self::$_instance === null) {
-            self::$_instance = new static(...$values);
-        }
-        return self::$_instance;
-    }
+    // private static $_instance;
+
+    // public static function getInstance($values = []) {
+    //     if(self::$_instance === null) {
+    //         self::$_instance = new static(...$values);
+    //     }
+    //     return self::$_instance;
+    // }
 
     private function prepareValues($stmt, $values = []) {
         if(\count($values) > 0) {
@@ -85,14 +87,14 @@ class AbstractModel {
                     \array_push($duplicatedColumns, $column);
                 }
             }
-            if(count($duplicatedColumns) > 0) {
-                return $duplicatedColumns;
-            } else {
-                $sql = 'INSERT INTO `' . static::$tableName . '` SET ' . self::buildNamedSQLParameters();
-                $stmt = DB::getInstance()->prepare($sql);
-                $this->prepareValues($stmt);
-                return $stmt->execute();
-            }
+        }
+        if(count($duplicatedColumns) > 0) {
+            return $duplicatedColumns;
+        } else {
+            $sql = 'INSERT INTO `' . static::$tableName . '` SET ' . self::buildNamedSQLParameters();
+            $stmt = DB::getInstance()->prepare($sql);
+            $this->prepareValues($stmt);
+            return $stmt->execute();
         }
     }
 

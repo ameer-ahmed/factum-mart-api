@@ -31,7 +31,14 @@ class UsersModel extends AbstractModel {
         'password',
         'name'
     ];
-    protected static $uniqueColumns = ['username', 'email'];
+    protected static $uniqueColumns = [
+        'username',
+        'email'
+    ];
+
+    public function getModelName() {
+        return \get_class($this);
+    }
 
     public function __construct($username = null, $email = null, $password = null, $name = null) {
         self::$username = $username;
