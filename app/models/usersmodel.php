@@ -2,6 +2,8 @@
 
 namespace FactumMart\API\Models;
 
+use FactumMart\API\LIB\Sanitize;
+
 class UsersModel extends AbstractModel {
 
     public static $username;
@@ -17,7 +19,18 @@ class UsersModel extends AbstractModel {
         'name' => self::DATA_TYPE_STR
     ];
     protected static $primaryKey = 'id';
-    protected static $requiredFields = ['username', 'email', 'password', 'name'];
+    protected static $fields = [
+        'username' => Sanitize::FILTER_STRING,
+        'email' => Sanitize::FILTER_EMAIL,
+        'password' => Sanitize::NO_FILTER,
+        'name' => Sanitize::FILTER_STRING
+    ];
+    protected static $requiredFields = [
+        'username',
+        'email',
+        'password',
+        'name'
+    ];
     protected static $uniqueColumns = ['username', 'email'];
 
     public function __construct($username = null, $email = null, $password = null, $name = null) {

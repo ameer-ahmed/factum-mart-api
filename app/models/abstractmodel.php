@@ -58,6 +58,15 @@ class AbstractModel {
         return $stmt->fetchColumn();
     }
 
+    public static function filterInputs() {
+        foreach(static::$fields as $field => $filter) {
+            if($filter !== null) {
+                $_POST[$field] = Sanitize::$filter($_POST[$field]);
+            }
+        }
+        return true;
+    }
+
     public static function catchRequiredFields() {
         $missedFields = [];
         foreach(static::$requiredFields as $field) {

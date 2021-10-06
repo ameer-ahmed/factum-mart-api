@@ -4,6 +4,13 @@ namespace FactumMart\API\LIB;
 
 class Sanitize {
 
+    const FILTER_STRING = 'string';
+    const FILTER_INT = 'int';
+    const FILTER_FLOAT = 'float';
+    const FILTER_EMAIL = 'email';
+    const FILTER_BOOL = 'bool';
+    const NO_FILTER = null;
+
     public static function string($value) {
         return \filter_var($value, \FILTER_SANITIZE_STRING);
     }

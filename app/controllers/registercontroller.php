@@ -15,21 +15,24 @@ class RegisterController extends AbstractController {
             isset($_POST['password']) &&
             isset($_POST['name'])
         ) {
-            $missedFields = UsersModel::catchRequiredFields();
-            if(count($missedFields)) {
-                API::response(\false, 'All fields are required.', ['missed' => $missedFields]);
-            } else {
-                $register = UsersModel::getInstance([
-                    $_POST['username'], 
-                    $_POST['email'], 
-                    $_POST['password'], 
-                    $_POST['name']
-                ])->create();
-                if($register === true) {
-                    API::response(\true, 'User successfully registerd!');
+            $filter = UsersModel::filterInputs();
+            if($filter) {
+                $missedFields = UsersModel::catchRequiredFields();
+                if(count($missedFields)) {
+                    API::response(\false, 'All fields are required.', ['missed' => $missedFields]);
                 } else {
-                    API::response(\false, 'Something wrong happend.', ['duplicated' => $register]);
-                }
+                    $register = UsersModel::getInstance([
+                        $_POST['username'], 
+                        $_POST['email'], 
+                        $_POST['password'], 
+                        $_POST['name']
+                    ])->create();
+                    if($register === true) {
+                        API::response(\true, 'User successfully registerd!');
+                    } else {
+                        API::response(\false, 'Something wrong happend.', ['duplicated' => $register]);
+                    }
+                }    
             }
         }
     }
