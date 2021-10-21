@@ -13,18 +13,7 @@ class AbstractModel {
     const DATA_TYPE_BOOL = PDO::PARAM_BOOL;
     const DATA_TYPE_DECIMAL = 4;
 
-    
-
-    // private static $_instance;
-
-    // public static function getInstance($values = []) {
-    //     if(self::$_instance === null) {
-    //         self::$_instance = new static(...$values);
-    //     }
-    //     return self::$_instance;
-    // }
-
-    private function prepareValues($stmt, $values = []) {
+    protected function prepareValues($stmt, $values = []) {
         if(\count($values) > 0) {
             foreach($values as $columnName => $value) {
                 $stmt->bindValue(":${columnName}", Sanitize::string($value));
@@ -98,6 +87,35 @@ class AbstractModel {
         }
     }
 
+    protected function paginate($rowsInPageCount, $where = '', $values = []) {
+        $sql = 'SELECT ' . static::$primaryKey . ' FROM ' . static::$tableName . ' ' . $where;
+        $stmt = DB::getInstance()->prepare($sql);
+        if(\count($values) > 0) {
+            $this->prepareValues($stmt, $values);
+        }
+        if($stmt->execute()) {
+            $fetch = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            $pagesCount = ceil(\count($fetch) / $rowsInPageCount);
+            $this->pagesCount = $pagesCount;
+            $paginated = null;
+            $rowIndex = 0;
+            for($currentPage = 1; $currentPage <= $pagesCount; $currentPage++) {
+                $first = $fetch[$rowIndex];
+                $last = !empty($fetch[$rowIndex + $rowsInPageCount - 1]) ? $fetch[$rowIndex + $rowsInPageCount - 1] : end($fetch);
+                if($first !== null) {
+                    $paginated[] =  [
+                        'first' => $first,
+                        'last' => $last
+                    ];
+                }
+                $rowIndex = $rowIndex + $rowsInPageCount;
+            }
+            \array_unshift($paginated, '');
+            unset($paginated[0]);
+            return $paginated;
+        }
+    }
+
     public static function getByPK($pk) {
         $sql = 'SELECT * FROM ' . static::$tableName . ' WHERE ' . static::$primaryKey . ' = "' . $pk . '"';
         // TODO: To be continued.
@@ -113,7 +131,19 @@ class AbstractModel {
             return \false;
         }
     }
-
     
+    public function getCustom($sql, $values, $fetch = \true) {
+        $stmt = DB::getInstance()->prepare($sql);
+        $this->prepareValues($stmt, $values);
+        if($stmt->execute()) {
+            if($fetch === \true) {
+                return $stmt->fetchAll(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, \get_called_class(), \array_keys(static::$tableSchema));
+            } else {
+                return $stmt->rowCount();
+            }
+        } else {
+            return \false;
+        }
+    }
 
 }
