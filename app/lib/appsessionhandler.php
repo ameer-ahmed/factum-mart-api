@@ -10,7 +10,7 @@ class AppSessionHandler extends SessionHandler {
     private $_sessionMaxLifeTime = 0;
     private $_sessionPath = '/';
     private $_sessionSavePath = \SESSIONS_SAVE_PATH;
-    private $_sessionDomain = 'api.factum.mart';
+    private $_sessionDomain = 'api.mart.factum.com';
     private $_sessionSSL = false;
     private $_sessionHTTPOnly = true;
     private $_sessionTTL = 5;

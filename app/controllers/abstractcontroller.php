@@ -36,12 +36,24 @@ class AbstractController {
         }
     }
 
-    protected function activateHeaders() {
+    protected function catchData() {
+        return \json_decode(\file_get_contents('php://input'));
+    }
+
+    protected function activateHeaders($method) {
         header("Access-Control-Allow-Origin: *");
-        header("Content-Type: application/json; charset=UTF-8");
-        header("Access-Control-Allow-Methods: OPTIONS,GET,POST,PUT,DELETE");
+        header("Content-Type: application/json");
+        header("Access-Control-Allow-Methods: " . $method);
         header("Access-Control-Max-Age: 3600");
         header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+    }
+
+    protected function isAuthorizationExisted() {
+        $authorization = \getallheaders()['Authorization'];
+        if(isset($authorization) && $authorization !== '') {
+            return $authorization;
+        }
+        return \false;
     }
 
     public function notFoundAction() {
