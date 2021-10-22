@@ -8,10 +8,11 @@ use PDO;
 
 class ProductsModel extends AbstractModel {
 
-    public static $name;
-    public static $price;
-    public static $oldPrice;
-    public static $mainImage;
+    public $id;
+    public $name;
+    public $price;
+    public $old_price;
+    public $unique_name;
 
     protected static $tableName = 'products';
     protected static $joindTables = ['images'];
@@ -23,18 +24,19 @@ class ProductsModel extends AbstractModel {
     ];
     protected static $primaryKey = 'id';
 
-    public function __construct($name = null, $price = null, $oldPrice = null, $mainImage = null) {
-        self::$name = $name;
-        self::$price = $price;
-        self::$oldPrice = $oldPrice;
-        self::$mainImage = $mainImage;
+    public function __construct($id = null, $name = null, $price = null, $old_price = null, $unique_name = null) {
+        $this->id = $id;
+        $this->name = $name;
+        $this->price = $price;
+        $this->old_price = $old_price;
+        $this->unique_name = $unique_name;
     }
 
     public function getAllProducts() {
         $sql = 'SELECT products.id, products.name, products.price, products.old_price, images.unique_name FROM products JOIN images ON products.id = images.p_id';
         $stmt = DB::getInstance()->prepare($sql);
         if($stmt->execute()) {
-            return $stmt->fetchAll(PDO::FETCH_CLASS, \get_called_class());
+            return $stmt->fetchAll(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, \get_called_class());
         } else {
             return \false;
         }
@@ -48,7 +50,7 @@ class ProductsModel extends AbstractModel {
             $sql = 'SELECT products.id, products.name, products.price, products.old_price, images.unique_name FROM products JOIN images ON products.id = images.p_id WHERE products.id >= ' . $this->paginate($productsForPage)[$page]['first'] . ' AND products.id <= ' . $this->paginate($productsForPage)[$page]['last'];
             $stmt = DB::getInstance()->prepare($sql);
             if($stmt->execute()) {
-                return $stmt->fetchAll(PDO::FETCH_CLASS, \get_called_class());
+                return $stmt->fetchAll(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, \get_called_class());
             } else {
                 return \false;
             }

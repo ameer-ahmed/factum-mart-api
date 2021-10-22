@@ -14,7 +14,7 @@ class ProductsController extends AbstractController {
         if($_SERVER['REQUEST_METHOD'] === 'GET') {
             if($this->isAuthorizationExisted() && SessionsModel::isSessionExisted($this->isAuthorizationExisted()) > 0) {
                 $products = new ProductsModel();
-                $fetchData = @$products->getAllProducts();
+                $fetchData = $products->getAllProducts();
                 if(\count($fetchData) > 0) {
                     $productsData = null;
                     foreach($fetchData as $product) {
