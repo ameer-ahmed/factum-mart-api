@@ -21,13 +21,13 @@ class AbstractModel {
         } else {
             foreach(static::$tableSchema as $columnName => $type) {
                 if($type === self::DATA_TYPE_STR) {
-                    $stmt->bindValue(":${columnName}", Sanitize::string(static::${$columnName}));
+                    $stmt->bindValue(":${columnName}", Sanitize::string($this->{$columnName}));
                 } elseif($type === self::DATA_TYPE_INT) {
-                    $stmt->bindValue(":${columnName}", Sanitize::int(static::${$columnName}));
+                    $stmt->bindValue(":${columnName}", Sanitize::int($this->{$columnName}));
                 } elseif($type === self::DATA_TYPE_BOOL) {
-                    $stmt->bindValue(":${columnName}", Sanitize::bool(static::${$columnName}));
+                    $stmt->bindValue(":${columnName}", Sanitize::bool($this->{$columnName}));
                 } elseif($type === 4) {
-                    $stmt->bindValue(":${columnName}", Sanitize::float(static::${$columnName}));
+                    $stmt->bindValue(":${columnName}", Sanitize::float($this->{$columnName}));
                 }
             }
         }
@@ -72,7 +72,7 @@ class AbstractModel {
         if(count(static::$uniqueColumns) > 0) {
             $duplicatedColumns = [];
             foreach(static::$uniqueColumns as $column) {
-                if($this->detectDuplicate($column, [$column => static::${$column}]) > 0) {
+                if($this->detectDuplicate($column, [$column => $this->{$column}]) > 0) {
                     \array_push($duplicatedColumns, $column);
                 }
             }

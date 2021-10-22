@@ -4,10 +4,10 @@ namespace FactumMart\API\Models;
 
 class ImagesModel extends AbstractModel {
 
-    public static $real_name;
-    public static $name;
-    public static $p_id;
-    public static $main;
+    public $real_name;
+    public $name;
+    public $p_id;
+    public $main;
 
     protected static $tableName = 'images';
     protected static $tableSchema = [
@@ -19,10 +19,10 @@ class ImagesModel extends AbstractModel {
     protected static $primaryKey = 'id';
 
     public function __construct($real_name = null, $name = null, $p_id = null, $main = null) {
-        self::$real_name = $real_name;
-        self::$name = $name;
-        self::$p_id = $p_id;
-        self::$main = $main;
+        $this->real_name = $real_name;
+        $this->name = $name;
+        $this->p_id = $p_id;
+        $this->main = $main;
     }
 
 }

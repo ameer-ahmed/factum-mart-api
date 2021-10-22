@@ -6,10 +6,10 @@ use FactumMart\API\LIB\Sanitize;
 
 class UsersModel extends AbstractModel {
 
-    public static $username;
-    public static $email;
-    public static $password;
-    public static $name;
+    public $username;
+    public $email;
+    public $password;
+    public $name;
 
     protected static $tableName = 'users';
     protected static $tableSchema = [
@@ -41,10 +41,10 @@ class UsersModel extends AbstractModel {
     }
 
     public function __construct($username = null, $email = null, $password = null, $name = null) {
-        self::$username = $username;
-        self::$email = $email;
-        self::$password = password_hash($password, \PASSWORD_BCRYPT);
-        self::$name = $name;
+        $this->username = $username;
+        $this->email = $email;
+        $this->password = password_hash($password, \PASSWORD_BCRYPT);
+        $this->name = $name;
     }
 
 }

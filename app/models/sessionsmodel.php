@@ -6,11 +6,10 @@ use FactumMart\API\LIB\DB;
 
 class SessionsModel extends AbstractModel {
 
-    public static $user_id;
-    public static $session_token;
-    public static $start_timestamp;
+    public $user_id;
+    public $session_token;
+    public $start_timestamp;
 
-    
     protected static $tableName = 'sessions';
     protected static $tableSchema = [
         'user_id' => self::DATA_TYPE_INT,
@@ -36,9 +35,9 @@ class SessionsModel extends AbstractModel {
     }
 
     public function __construct($user_id, $session_token, $start_timestamp) {
-        self::$user_id = $user_id;
-        self::$session_token = $session_token;
-        self::$start_timestamp = $start_timestamp;
+        $this->user_id = $user_id;
+        $this->session_token = $session_token;
+        $this->start_timestamp = $start_timestamp;
     }
 
 }

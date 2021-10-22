@@ -14,8 +14,9 @@ class LoginController extends AbstractController {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = $this->catchData();
             $login = new UsersModel();
-            $fetchData = @$login->getByCustom('(username = :username  OR email = :email)', ['username' => $data->username, 'email' => $data->email]);
-            @$fetchData = (array)$fetchData[0];
+            $fetchData = $login->getByCustom('(username = :username  OR email = :email)', ['username' => $data->username, 'email' => $data->username]);
+            $fetchData = isset($fetchData[0]) ? (array)$fetchData[0] : [];
+            
             if(count($fetchData) > 0) {
                 if(\password_verify($data->password, $fetchData['password'])) {
                     $session = new AppSessionHandler($fetchData['id']);
