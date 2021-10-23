@@ -88,7 +88,7 @@ class AbstractModel {
     }
 
     protected function paginate($rowsInPageCount, $where = '', $values = []) {
-        $sql = 'SELECT ' . static::$primaryKey . ' FROM ' . static::$tableName . ' ' . $where;
+        $sql = 'SELECT ' . static::$tableName . '.' . static::$primaryKey . ' FROM ' . static::$tableName . ' ' . $where;
         $stmt = DB::getInstance()->prepare($sql);
         if(\count($values) > 0) {
             $this->prepareValues($stmt, $values);

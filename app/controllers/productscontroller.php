@@ -32,26 +32,36 @@ class ProductsController extends AbstractController {
         $this->activateHeaders('GET');
         if($_SERVER['REQUEST_METHOD'] === 'GET') {
             if($this->isAuthorizationExisted() && SessionsModel::isSessionExisted($this->isAuthorizationExisted()) > 0) {
-                @$page = !empty($this->_params[0]) ? abs(Sanitize::int($this->_params[0])) : '';
-                if(!empty($page)) {
-                    $productsForPage = $this->catchData()->productsForPage;
-                    if(!empty(Sanitize::int($productsForPage)) || Sanitize::int($productsForPage) > 1) {
-                        $products = new ProductsModel();
-                        $fetchData = @$products->getPaginatedProducts($productsForPage, $page);
-                        if(\is_array($fetchData) && \count($fetchData) > 0) {
+                $this->paginateProvider(0, new ProductsModel(), 'product');
+            } else {
+                API::response(\false, 'Not authorized.');
+            }
+        }
+    }
+
+    public function categoryAction() {
+        $this->activateHeaders('GET');
+        if($_SERVER['REQUEST_METHOD'] === 'GET') {
+            if($this->isAuthorizationExisted() && SessionsModel::isSessionExisted($this->isAuthorizationExisted()) > 0) {
+                $category = isset($this->_params[0]) ? abs(Sanitize::int($this->_params[0])) : '';
+                if(!empty($category)) {
+                    $products = new ProductsModel();
+                    if(isset($this->_params[1]) && $this->_params[1] == 'page') {
+                        $this->paginateProvider(2, new ProductsModel(), 'product', true, $category);
+                    } else {
+                        $fetchData = $products->getAllProducts(\true, $category);
+                        if(\count($fetchData) > 0) {
                             $productsData = null;
                             foreach($fetchData as $product) {
                                 $productsData[] = $product;
                             }
-                            API::response(true, 'Page ' . $page . ' of ' . $products->pagesCount, $productsData);
+                            API::response(\true, null, $productsData);
                         } else {
-                            API::response(\false, 'Page ' . $page . ' is out of range.');
+                            API::response(\false, 'This category is out of products or not existed.');
                         }
-                    } else {
-                        API::response(\false, 'Number of products for one page needed to be specified.');
                     }
                 } else {
-                    API::response(\false, 'Page number is requested.');
+                    API::response(\false, 'Category\'s id is required.');
                 }
             } else {
                 API::response(\false, 'Not authorized.');

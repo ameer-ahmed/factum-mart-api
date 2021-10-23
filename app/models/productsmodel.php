@@ -32,9 +32,16 @@ class ProductsModel extends AbstractModel {
         $this->unique_name = $unique_name;
     }
 
-    public function getAllProducts() {
-        $sql = 'SELECT products.id, products.name, products.price, products.old_price, images.unique_name FROM products JOIN images ON products.id = images.p_id';
+    public function getAllProducts($categorized = \false, $categoryId = '') {
+        $condition = $categorized === true && !empty($categoryId);
+        $sql = '';
+        if($condition) {
+            $sql = 'SELECT products.id, products.name, products.price, products.old_price, images.unique_name FROM products JOIN images ON products.id = images.p_id JOIN products_categories ON products.id = products_categories.product_id WHERE products_categories.sub_cat_id = :sub_cat_id';
+        } else {
+            $sql = 'SELECT products.id, products.name, products.price, products.old_price, images.unique_name FROM products JOIN images ON products.id = images.p_id';
+        }
         $stmt = DB::getInstance()->prepare($sql);
+        $condition ? $this->prepareValues($stmt, ['sub_cat_id' => $categoryId]) : '';
         if($stmt->execute()) {
             return $stmt->fetchAll(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, \get_called_class());
         } else {
@@ -42,17 +49,28 @@ class ProductsModel extends AbstractModel {
         }
     }
 
-    public function getPaginatedProducts($productsForPage, $page) {
+    public function getPaginatedItems($productsForPage, $page, $categorized = \false, $categoryId = '') {
         if(
             !empty(Sanitize::int($page)) && 
             (int)Sanitize::int($page > 0)
         ) {
-            $sql = 'SELECT products.id, products.name, products.price, products.old_price, images.unique_name FROM products JOIN images ON products.id = images.p_id WHERE products.id >= ' . $this->paginate($productsForPage)[$page]['first'] . ' AND products.id <= ' . $this->paginate($productsForPage)[$page]['last'];
-            $stmt = DB::getInstance()->prepare($sql);
-            if($stmt->execute()) {
-                return $stmt->fetchAll(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, \get_called_class());
-            } else {
-                return \false;
+            $condition = $categorized === true && !empty($categoryId);
+            $where = 'JOIN products_categories ON products.id = products_categories.product_id WHERE products_categories.sub_cat_id = ' . $categoryId;
+            $paginatable = $condition ? isset($this->paginate($productsForPage, $where)[$page]) : isset($this->paginate($productsForPage)[$page]);
+            if($paginatable) {
+                $sql = '';
+                if($condition) {
+                    $sql = 'SELECT products.id, products.name, products.price, products.old_price, images.unique_name FROM products JOIN images ON products.id = images.p_id JOIN products_categories ON products.id = products_categories.product_id WHERE products_categories.sub_cat_id = :sub_cat_id AND products.id >= ' . $this->paginate($productsForPage, $where)[$page]['first'] . ' AND products.id <= ' . $this->paginate($productsForPage, $where)[$page]['last'];
+                } else {
+                    $sql = 'SELECT products.id, products.name, products.price, products.old_price, images.unique_name FROM products JOIN images ON products.id = images.p_id WHERE products.id >= ' . $this->paginate($productsForPage)[$page]['first'] . ' AND products.id <= ' . $this->paginate($productsForPage)[$page]['last'];
+                }
+                $stmt = DB::getInstance()->prepare($sql);
+                $condition ? $this->prepareValues($stmt, ['sub_cat_id' => $categoryId]) : '';
+                if($stmt->execute()) {
+                    return $stmt->fetchAll(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, \get_called_class());
+                } else {
+                    return \false;
+                }
             }
         }    
     }
