@@ -2,6 +2,9 @@
 
 namespace FactumMart\API\Controllers;
 
+use FactumMart\API\LIB\API;
+use FactumMart\API\LIB\Sanitize;
+
 class AbstractController {
     
     protected $_controller;
@@ -49,11 +52,35 @@ class AbstractController {
     }
 
     protected function isAuthorizationExisted() {
-        $authorization = \getallheaders()['Authorization'];
-        if(isset($authorization) && $authorization !== '') {
+        $authorization = isset(\getallheaders()['Authorization']) ? \getallheaders()['Authorization'] : '';
+        if($authorization !== '') {
             return $authorization;
         }
         return \false;
+    }
+
+    protected function paginateProvider($paramIndex, $model, $itemName, $categorized = \false, $categoryId = '') {
+        $page = isset($this->_params[$paramIndex]) ? abs(Sanitize::int($this->_params[$paramIndex])) : '';
+        if(!empty($page)) {
+            $itemsForPage = isset($this->catchData()->itemsForPage) ? $this->catchData()->itemsForPage : '';
+            if(!empty(Sanitize::int($itemsForPage)) || Sanitize::int($itemsForPage) > 1) {
+                $items = $model;
+                $fetchData = $items->getPaginatedItems($itemsForPage, $page, $categorized, $categoryId);
+                if(\is_array($fetchData) && \count($fetchData) > 0) {
+                    $itemsData = null;
+                    foreach($fetchData as $item) {
+                        $itemsData[] = $item;
+                    }
+                    API::response(true, 'Page ' . $page . ' of ' . $items->pagesCount, $itemsData);
+                } else {
+                    API::response(\false, 'Page ' . $page . ' is out of range.');
+                }
+            } else {
+                API::response(\false, 'Number of ' . $itemName . 's for one page needed to be specified.');
+            }
+        } else {
+            API::response(\false, 'Page number is required.');
+        }
     }
 
     public function notFoundAction() {
