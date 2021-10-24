@@ -7,6 +7,8 @@ define('APP_PATH', realpath(dirname(__FILE__)));
 define('VIEW_PATH', APP_PATH . DS . 'views');
 define('SESSIONS_SAVE_PATH', APP_PATH . DS . 'sessions');
 define('IMAGES_PATH', APP_PATH . DS . 'media' . DS . 'images');
+define('ASSETS_PATH', APP_PATH . DS . 'assets');
+
 
 
 

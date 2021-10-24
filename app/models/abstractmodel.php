@@ -116,6 +116,16 @@ class AbstractModel {
         }
     }
 
+    public static function getAll() {
+        $sql = 'SELECT * FROM ' . static::$tableName;
+        $stmt = DB::getInstance()->prepare($sql);
+        if($stmt->execute()) {
+            return $stmt->fetchAll(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, \get_called_class(), \array_keys(static::$tableSchema));
+        } else {
+            return \false;
+        }
+    }
+
     public static function getByPK($pk) {
         $sql = 'SELECT * FROM ' . static::$tableName . ' WHERE ' . static::$primaryKey . ' = "' . $pk . '"';
         // TODO: To be continued.

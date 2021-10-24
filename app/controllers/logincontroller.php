@@ -37,7 +37,7 @@ class LoginController extends AbstractController {
                 API::response(false, 'Username or email not found.');
             }
         } else {
-            echo 'Access denied.';
+            API::response(\false, 'Access denied.');
         }
     }
 
