@@ -8,10 +8,10 @@ use PDO;
 
 class ProductsModel extends AbstractModel {
 
-    public $id;
+    public int $id;
     public $name;
-    public $price;
-    public $old_price;
+    public float $price;
+    public float $old_price;
     public $unique_name;
 
     protected static $tableName = 'products';
@@ -24,7 +24,7 @@ class ProductsModel extends AbstractModel {
     ];
     protected static $primaryKey = 'id';
 
-    public function __construct($id = null, $name = null, $price = null, $old_price = null, $unique_name = null) {
+    public function __construct($id = 0, $name = null, $price = 0, $old_price = 0, $unique_name = null) {
         $this->id = $id;
         $this->name = $name;
         $this->price = $price;

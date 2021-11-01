@@ -62,7 +62,7 @@ class AbstractController {
     protected function paginateProvider($paramIndex, $model, $itemName, $categorized = \false, $categoryId = '') {
         $page = isset($this->_params[$paramIndex]) ? abs(Sanitize::int($this->_params[$paramIndex])) : '';
         if(!empty($page)) {
-            $itemsForPage = isset($this->catchData()->itemsForPage) ? $this->catchData()->itemsForPage : '';
+            $itemsForPage = isset($_GET['items_for_page']) && !empty(Sanitize::int($_GET['items_for_page'])) ? Sanitize::int($_GET['items_for_page']) : '';
             if(!empty(Sanitize::int($itemsForPage)) || Sanitize::int($itemsForPage) > 1) {
                 $items = $model;
                 $fetchData = $items->getPaginatedItems($itemsForPage, $page, $categorized, $categoryId);

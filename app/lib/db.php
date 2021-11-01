@@ -17,6 +17,7 @@ class DB {
         self::$_handler = new PDO('mysql://hostname=' . \DB_HOSTNAME . ';dbname=' . \DB_NAME, \DB_USERNAME, \DB_PASSWORD, [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING,
             PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
+            PDO::ATTR_EMULATE_PREPARES => \false,
         ]);
     }
 

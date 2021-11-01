@@ -2,6 +2,8 @@
 
 namespace FactumMart\API\LIB;
 
+use PDO;
+
 class Sanitize {
 
     const FILTER_STRING = 'string';
@@ -16,11 +18,11 @@ class Sanitize {
     }
 
     public static function int($value) {
-        return \filter_var($value, \FILTER_SANITIZE_NUMBER_INT);
+        return (int)\filter_var($value, \FILTER_SANITIZE_NUMBER_INT);
     }
 
     public static function float($value) {
-        return \filter_var($value, \FILTER_SANITIZE_NUMBER_FLOAT, \FILTER_FLAG_ALLOW_FRACTION);
+        return (float)\filter_var($value, \FILTER_SANITIZE_NUMBER_FLOAT, \FILTER_FLAG_ALLOW_FRACTION);
     }
 
     public static function email($value) {
